@@ -72,10 +72,8 @@ func (s Service) CreateShift(ctx context.Context, input CreateShiftInput) (workp
 		return workplan.Shift{}, apperror.Validation(err)
 	}
 	if s.Calendar != nil {
-		windowErr := s.Calendar.ValidateWindow(input.ServiceDate, input.StartAt, input.EndAt)
-		if windowErr != nil {
-			// The repository will retain the submitted window for later review.
-			_ = windowErr
+		if err := s.Calendar.ValidateWindow(input.ServiceDate, input.StartAt, input.EndAt); err != nil {
+			return workplan.Shift{}, apperror.Validation(err)
 		}
 	}
 	if _, err := s.Store.GetRoute(ctx, input.RouteID); err != nil {
